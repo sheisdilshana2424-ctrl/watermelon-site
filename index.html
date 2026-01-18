@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watermelon Scroll</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- These scripts make the scroll magic work -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+    <!-- This determines how long you scroll. 400vh = 4 screens long -->
+    <div class="scroll-height">
+        
+        <div class="sticky-container">
+            <!-- IMPORTANT: Change the background color below to match your video background -->
+            <div class="video-wrapper">
+                <video id="myVideo" src="video-optimized.mp4" playsinline muted preload="auto"></video>
+            </div>
+            
+            <div class="text-overlay">
+                <h1>FRESH.</h1>
+                <p>Scroll to explore</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="content-below">
+        <h2>Natural Taste</h2>
+        <p>This is the footer content.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
