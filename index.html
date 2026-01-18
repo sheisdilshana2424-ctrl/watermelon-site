@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Juicy | YouTube Style</title>
+    <title>Juicy | 151 Frame Engine</title>
     
-    <!-- GSAP Engine -->
+    <!-- Load GSAP & ScrollTrigger -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <style>
-        /* --- 1. SETTINGS --- */
+        /* --- 1. CORE STYLES --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --brand-pink: #E68DA5; 
-            --nav-height: 70px; /* Slightly smaller for mobile elegance */
-        }
 
         body {
             background-color: #fff;
-            font-family: -apple-system, sans-serif;
-            overflow-x: hidden;
-            overscroll-behavior: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden; /* No horizontal scroll */
+        }
+
+        :root {
+            --brand-pink: #E68DA5; 
+            --nav-height: 70px;
         }
 
         /* --- 2. NAVIGATION --- */
@@ -36,163 +35,212 @@
             align-items: center;
             padding: 0 20px;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .logo { color: white; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; }
-        
+        .logo { color: white; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
         .nav-links { display: flex; gap: 15px; }
-        .nav-links a { text-decoration: none; color: white; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-        
-        @media(max-width: 400px) { .nav-links { display: none; } }
+        .nav-links a { text-decoration: none; color: white; font-size: 0.8rem; font-weight: bold; }
 
-        /* --- 3. THE SCROLL TRACK --- */
-        /* This provides the "distance" for the animation */
-        .scroll-track {
-            height: 350vh; /* Scroll distance */
-            position: relative;
-            background-color: #fff; /* Clean White Background */
-        }
-
-        /* The Sticky container - Holds video in place */
-        .sticky-wrapper {
-            position: sticky;
-            top: var(--nav-height);
-            height: calc(100vh - var(--nav-height));
-            width: 100%;
+        /* --- 3. LOADER (Crucial for 151 images) --- */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--brand-pink);
+            z-index: 2000;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Centers video vertically */
+            justify-content: center;
+            align-items: center;
+            color: white;
+            transition: opacity 0.5s;
+        }
+        #loading-text { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
+        #loading-bar { width: 200px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
+        #loading-progress { width: 0%; height: 100%; background: white; transition: width 0.1s; }
+
+        /* --- 4. SCROLL TRACK (The Engine Room) --- */
+        .scroll-track {
+            /* 
+               HEIGHT MATH: 
+               151 frames is a lot. We need a long scroll to see it all.
+               500vh means 5x the screen height. 
+               If you want it faster, lower this to 300vh.
+            */
+            height: 500vh; 
+            position: relative;
+            background: #fff;
+        }
+
+        .sticky-viewport {
+            position: sticky;
+            top: var(--nav-height); /* Sticks below nav */
+            height: calc(100vh - var(--nav-height)); /* Fills rest of screen */
+            width: 100%;
+            display: flex;
+            justify-content: center;
             align-items: center;
             overflow: hidden;
         }
 
-        /* --- 4. THE YOUTUBE SIZE VIDEO --- */
-        .video-container {
+        /* --- 5. THE CANVAS (YouTube Size 16:9) --- */
+        canvas {
             width: 100%;
-            max-width: 800px; /* Limits size on desktop */
-            aspect-ratio: 16 / 9; /* FORCES YOUTUBE SHAPE */
-            background: #000; /* Black bars only if video loads slow */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Nice pop effect */
-            position: relative;
+            max-width: 800px; /* Limits width on Desktop */
+            aspect-ratio: 16 / 9; /* Forces YouTube Shape */
+            object-fit: contain;
+            
+            /* Clean look */
+            background: #fff; 
+            /* Optional shadow for depth */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
         }
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Shows FULL video, no cropping */
-            display: block;
-        }
-
-        /* "Scroll" hint text */
-        .scroll-hint {
-            margin-top: 20px;
-            color: #ccc;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse { 0% { opacity:0.5; } 50% { opacity:1; } 100% { opacity:0.5; } }
-
-        /* --- 5. ABOUT SECTION --- */
-        .about-section {
-            background: white;
-            padding: 60px 20px;
+        /* --- 6. CONTENT AFTER SCROLL --- */
+        .content-section {
             position: relative;
             z-index: 20;
+            background: #fff;
+            padding: 60px 20px;
+            min-height: 100vh;
             text-align: center;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #f0f0f0;
         }
+
+        h2 { color: var(--brand-pink); font-size: 2rem; margin-bottom: 15px; }
+        p { color: #666; line-height: 1.6; max-width: 600px; margin: 0 auto 30px auto; }
         
-        h2 { color: var(--brand-pink); margin-bottom: 15px; font-size: 2rem; }
-        p { color: #555; line-height: 1.6; margin-bottom: 20px; }
+        .btn {
+            background: var(--brand-pink); color: white; 
+            border: none; padding: 15px 40px; 
+            border-radius: 30px; font-weight: bold; font-size: 1rem;
+            cursor: pointer;
+        }
 
     </style>
 </head>
 <body>
+
+    <!-- Loading Screen -->
+    <div id="loader">
+        <div id="loading-text">0%</div>
+        <div id="loading-bar"><div id="loading-progress"></div></div>
+    </div>
 
     <!-- Navigation -->
     <nav>
         <div class="logo">Juicy.</div>
         <div class="nav-links">
             <a href="#">Home</a>
-            <a href="#">About</a>
+            <a href="#">Shop</a>
             <a href="#">Contact</a>
-            <a href="#">Loc</a>
         </div>
     </nav>
 
-    <!-- Scroll Track -->
+    <!-- Scroll Engine -->
     <div class="scroll-track">
-        <div class="sticky-wrapper">
-            
-            <!-- The 16:9 YouTube Box -->
-            <div class="video-container">
-                <video id="heroVideo" 
-                       src="video-optimized.mp4" 
-                       playsinline 
-                       webkit-playsinline 
-                       muted 
-                       preload="auto"></video>
-            </div>
-            
-            <div class="scroll-hint">↓ Scroll to Animate ↓</div>
-
+        <div class="sticky-viewport">
+            <!-- THE CANVAS -->
+            <canvas id="fruit-canvas"></canvas>
         </div>
     </div>
 
     <!-- Content -->
-    <div class="about-section">
-        <h2>Organic Goodness</h2>
+    <div class="content-section">
+        <h2>Freshly Blended</h2>
         <p>
-            Pure, cold-pressed watermelon juice. No added sugar, just nature's sweetness.
-            Perfect for a hot summer day.
+            You just witnessed 151 frames of high-speed canvas rendering. 
+            No video lag. No buffering. Just pure physics controlled by your finger.
         </p>
-        <p>
-            We source our melons from the best organic farms to ensure the highest quality taste.
-        </p>
+        <button class="btn">ORDER NOW</button>
     </div>
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
-        const video = document.querySelector("#heroVideo");
 
-        // --- THE SMOOTH SCROLL LOGIC ---
-        let videoState = { frame: 0 };
+        const canvas = document.getElementById("fruit-canvas");
+        const context = canvas.getContext("2d");
+        const loader = document.getElementById("loader");
+        const loadText = document.getElementById("loading-text");
+        const loadProgress = document.getElementById("loading-progress");
 
-        video.addEventListener("loadedmetadata", () => {
-            let tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: ".scroll-track",
-                    start: "top top", 
-                    end: "bottom bottom",
-                    scrub: 1.2, // Smooth scrub
-                    markers: false
-                }
-            });
+        // --- CONFIGURATION ---
+        const frameCount = 151; // TOTAL IMAGES
+        const images = [];
+        const watermelon = { frame: 0 };
+        let imagesLoaded = 0;
 
-            tl.to(videoState, {
-                frame: video.duration || 10,
-                ease: "none",
-                onUpdate: () => {
-                    // Update video frame efficiently
-                    if (isFinite(videoState.frame)) {
-                        video.currentTime = videoState.frame;
+        // --- 1. IMAGE NAMING LOGIC ---
+        // Converts 1 -> "001", 50 -> "050", 151 -> "151"
+        const currentFrame = index => (
+            `assets/images/ezgif-frame-${(index + 1).toString().padStart(3, '0')}.jpg`
+        );
+
+        // --- 2. PRELOAD SYSTEM WITH PROGRESS BAR ---
+        const preloadImages = () => {
+            for (let i = 0; i < frameCount; i++) {
+                const img = new Image();
+                img.src = currentFrame(i);
+                
+                // Track when image loads
+                img.onload = () => {
+                    imagesLoaded++;
+                    // Calculate percentage
+                    const percent = Math.round((imagesLoaded / frameCount) * 100);
+                    loadText.innerText = percent + "%";
+                    loadProgress.style.width = percent + "%";
+
+                    // When 100% loaded, start the show
+                    if (imagesLoaded === frameCount) {
+                        startAnimation();
                     }
-                }
-            });
-        });
+                };
 
-        // Wake up iOS video
-        const wakeUp = () => {
-            if(video.paused) {
-                video.play().then(() => video.pause()).catch(e=>{});
+                // Add to array
+                images.push(img);
             }
         };
-        window.addEventListener("touchstart", wakeUp, {once:true});
-        window.addEventListener("scroll", wakeUp, {once:true});
+
+        // --- 3. START ANIMATION ---
+        function startAnimation() {
+            // Setup Canvas Size based on the first image
+            canvas.width = images[0].width;
+            canvas.height = images[0].height;
+            
+            // Draw first frame
+            context.drawImage(images[0], 0, 0);
+
+            // Hide Loader
+            gsap.to(loader, { opacity: 0, duration: 0.5, onComplete: () => loader.style.display = "none" });
+
+            // Create ScrollTrigger
+            gsap.to(watermelon, {
+                frame: frameCount - 1,
+                snap: "frame", // Locks to exact integer
+                ease: "none", // Linear speed
+                scrollTrigger: {
+                    trigger: ".scroll-track",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 0, // 0 = Instant/Lightning response
+                },
+                onUpdate: render // Draw new frame
+            });
+        }
+
+        // --- 4. RENDERER ---
+        function render() {
+            // Clear old frame
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            // Draw new frame
+            if (images[watermelon.frame]) {
+                context.drawImage(images[watermelon.frame], 0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Initialize
+        preloadImages();
+
     </script>
 </body>
 </html>
