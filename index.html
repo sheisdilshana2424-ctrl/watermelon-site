@@ -3,67 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Juicy | The Watermelon Shop</title>
+    <title>Juicy | Smooth Scroll</title>
     
-    <!-- Load GSAP (The Engine) -->
+    <!-- Load GSAP & ScrollTrigger -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <style>
-        /* --- 1. RESET & BASICS --- */
+        /* --- 1. CORE SETTINGS --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         :root {
-            /* ⚠️ CHANGE THIS HEX CODE to match your video background exactly */
-            --bg-color: #E68DA5; 
-            --text-color: #fff;
-            --accent-color: #9aff9a; /* Light green for contrast */
+            --brand-pink: #E68DA5; 
+            --brand-white: #ffffff;
+            --nav-height: 80px;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--brand-white);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
-            overscroll-behavior: none; /* Prevents "bouncing" on mobile */
+            color: #333;
         }
 
-        /* --- 2. NAVIGATION --- */
+        /* --- 2. NAVIGATION (Solid Pink) --- */
         nav {
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
-            padding: 20px;
+            height: var(--nav-height);
+            background-color: var(--brand-pink);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
-            backdrop-filter: blur(5px);
+            padding: 0 5%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .logo { font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; }
-        
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a {
-            text-decoration: none;
+        .logo {
             color: white;
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        /* --- 3. VIDEO SCROLL SECTION --- */
-        .scroll-container {
-            height: 400vh; /* 4x screen height for scroll length */
-            position: relative;
+        .nav-links {
+            display: flex;
+            gap: 25px;
         }
 
-        .sticky-wrapper {
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover { opacity: 0.7; }
+
+        /* Mobile Menu adjustment */
+        @media(max-width: 768px) {
+            .nav-links { display: none; } /* Simplified for demo, add hamburger if needed */
+        }
+
+        /* --- 3. THE MAGIC SCROLL CONTAINER --- */
+        /* This container is taller than the screen to allow scrolling space */
+        .scroll-trigger-area {
+            position: relative;
+            height: 400vh; /* Scroll length (4x screen height) */
+            background-color: #000; /* Dark background for video contrast */
+            margin-top: var(--nav-height); /* Push down below fixed nav */
+        }
+
+        /* The Sticky Window */
+        .sticky-viewport {
             position: sticky;
-            top: 0;
+            top: var(--nav-height); /* Stick exactly below nav */
+            height: calc(100vh - var(--nav-height)); /* Fill remaining screen */
             width: 100%;
-            height: 100vh;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -71,239 +93,171 @@
         }
 
         video {
-            /* Mobile Optimization: 'Cover' fills screen, 'Contain' shows full fruit */
+            /* 
+               OBJECT-FIT: COVER 
+               This ensures the video fills the screen like an iPhone wallpaper.
+               If you strictly want the 16:9 box visible with black bars, change to 'contain'.
+            */
             width: 100%;
             height: 100%;
             object-fit: cover; 
-            /* Fixes the mobile scaling issues */
-            transform: scale(1.05); 
+            will-change: transform; /* GPU Optimization */
         }
 
-        .hero-text {
-            position: absolute;
-            text-align: center;
-            z-index: 10;
-            pointer-events: none;
-            opacity: 0; /* Hidden initially, shown by JS */
-        }
-
-        .hero-text h1 {
-            font-size: 15vw;
-            line-height: 1;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        /* --- 4. PRODUCT SECTION (SHOP) --- */
-        .shop-section {
-            background: white;
-            color: #333;
-            padding: 60px 20px;
+        /* --- 4. ABOUT SECTION (White Background) --- */
+        .about-section {
             position: relative;
             z-index: 20;
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
-            margin-top: -50px; /* Slight overlap */
+            background-color: var(--brand-white);
+            padding: 80px 20px;
+            min-height: 100vh;
         }
 
-        .shop-header { text-align: center; margin-bottom: 40px; }
-        .shop-header h2 { font-size: 2.5rem; color: var(--bg-color); }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 15px;
+        .content-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        
-        /* Placeholder for juice image */
-        .juice-mockup {
-            width: 80px;
-            height: 120px;
-            background: #ffecf0;
-            margin: 0 auto 15px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--bg-color);
-            font-weight: bold;
-            border: 2px solid var(--bg-color);
         }
 
-        .btn-order {
-            background: var(--bg-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            margin-top: 10px;
-            font-weight: bold;
-            cursor: pointer;
+        h2 {
+            font-size: 3rem;
+            color: var(--brand-pink);
+            margin-bottom: 30px;
         }
 
-        /* --- LOADING SCREEN --- */
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        /* --- LOADER --- */
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color);
-            z-index: 9999;
+            background: var(--brand-pink);
+            z-index: 2000;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 1.5rem;
+            font-weight: bold;
             transition: opacity 0.5s;
         }
+
     </style>
 </head>
 <body>
 
-    <!-- Loading Screen -->
-    <div id="loader">Loading Freshness...</div>
+    <!-- Loader -->
+    <div id="loader">INITIALIZING MAGIC...</div>
 
     <!-- Navigation -->
     <nav>
         <div class="logo">JUICY.</div>
         <div class="nav-links">
             <a href="#">Home</a>
-            <a href="#shop">Order</a>
+            <a href="#about">About</a>
             <a href="#">Contact</a>
+            <a href="#">Location</a>
         </div>
     </nav>
 
-    <!-- Scroll Video Section -->
-    <div class="scroll-container">
-        <div class="sticky-wrapper">
+    <!-- 1. The Video Scroll Area -->
+    <div class="scroll-trigger-area">
+        <div class="sticky-viewport">
             <!-- 
-                MOBILE FIXES:
-                - playsinline: Stops fullscreen on iPhone
-                - preload="auto": Downloads video immediately
-                - muted: Required for autoplay policies
+                VIDEO OPTIMIZATION:
+                muted: Required for autoplay logic
+                playsinline: Prevents iOS fullscreen
+                preload="auto": Loads data immediately
             -->
-            <video id="heroVideo" 
+            <video id="scrollVideo" 
                    src="video-optimized.mp4" 
+                   muted 
                    playsinline 
                    webkit-playsinline 
-                   muted 
                    preload="auto"></video>
-
-            <div class="hero-text">
-                <h1>PURE<br>TASTE</h1>
-            </div>
         </div>
     </div>
 
-    <!-- Shop Content -->
-    <div class="shop-section" id="shop">
-        <div class="shop-header">
-            <h2>Fresh Menu</h2>
-            <p>100% Organic Watermelon Juice</p>
+    <!-- 2. The About Section -->
+    <div class="about-section" id="about">
+        <div class="content-wrapper">
+            <h2>Pure Watermelon</h2>
+            <p>
+                We don't just make juice; we bottle summer. Using a proprietary cold-press method, 
+                we extract the essence of the fruit without losing a single vitamin.
+            </p>
+            <p>
+                No added sugar. No preservatives. Just the raw, red magic of nature delivered 
+                straight to your doorstep. Experience the difference of true hydration.
+            </p>
         </div>
-
-        <div class="product-grid">
-            <!-- Product 1 -->
-            <div class="card">
-                <div class="juice-mockup">IMAGE</div>
-                <h3>Classic Red</h3>
-                <p>$5.00</p>
-                <button class="btn-order">Add</button>
-            </div>
-            <!-- Product 2 -->
-            <div class="card">
-                <div class="juice-mockup">IMAGE</div>
-                <h3>Minty Melon</h3>
-                <p>$6.50</p>
-                <button class="btn-order">Add</button>
-            </div>
-             <!-- Product 3 -->
-             <div class="card">
-                <div class="juice-mockup">IMAGE</div>
-                <h3>Melon Slush</h3>
-                <p>$7.00</p>
-                <button class="btn-order">Add</button>
-            </div>
-        </div>
-
-        <br><br><br>
-        <p style="text-align: center; color: #888; font-size: 0.8rem;">
-            © 2024 Juicy Watermelon Shop
-        </p>
     </div>
 
     <script>
-        // --- 1. SETUP GSAP ---
         gsap.registerPlugin(ScrollTrigger);
-        
-        const video = document.querySelector("#heroVideo");
+
+        const video = document.querySelector("#scrollVideo");
         const loader = document.querySelector("#loader");
-        const heroText = document.querySelector(".hero-text");
 
-        // --- 2. MOBILE HANG FIX (The "Wake Up" Call) ---
-        // Mobile browsers put video to sleep to save battery.
-        // We touch it once to wake it up.
-        const wakeUpVideo = () => {
-            if(video.paused) {
-                video.play().then(() => {
-                    video.pause();
-                }).catch((e) => console.log("Auto-wake blocked"));
-            }
-        };
-        window.addEventListener("touchstart", wakeUpVideo, { once: true });
-        window.addEventListener("click", wakeUpVideo, { once: true });
+        // --- IPHONE OPTIMIZATION: THE PROXY METHOD ---
+        // We don't scroll the video directly. We scroll a "virtual" number
+        // and let the video catch up. This removes jitter.
+        let videoState = { currentTime: 0 };
 
-        // --- 3. LOAD CHECK ---
-        // Don't let them scroll until video is ready (Prevent Lag)
-        video.addEventListener("loadedmetadata", function() {
+        // 1. Wait for Metadata
+        video.addEventListener("loadedmetadata", () => {
+            
+            // Hide Loader
             loader.style.opacity = "0";
             setTimeout(() => loader.style.display = "none", 500);
-            
-            // --- 4. THE ANIMATION ---
+
+            // 2. The GSAP Timeline
             let tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: ".scroll-container",
-                    start: "top top",
+                    trigger: ".scroll-trigger-area",
+                    start: "top top+=80", // Starts after nav height
                     end: "bottom bottom",
-                    scrub: 1.5, // <--- HIGHER VALUE = SMOOTHER ON MOBILE (Hides lag)
+                    scrub: 1.5, // 1.5s delay = The "Heavy/Smooth" feel
                     markers: false
                 }
             });
 
-            // Video Animation
-            tl.fromTo(video, 
-                { currentTime: 0 }, 
-                { currentTime: video.duration || 1 }
-            );
-
-            // Text Animation (Fade in as it explodes)
-            gsap.fromTo(heroText, 
-                { opacity: 0, scale: 0.8 },
-                { 
-                    opacity: 1, 
-                    scale: 1, 
-                    scrollTrigger: {
-                        trigger: ".scroll-container",
-                        start: "20% top", // Start fading in after scroll starts
-                        end: "60% top",
-                        scrub: 1
+            // 3. Animate the Proxy Object instead of Video directly
+            tl.to(videoState, {
+                currentTime: video.duration || 10,
+                duration: 1,
+                ease: "none",
+                onUpdate: () => {
+                    // Update video time only on animation frames
+                    // This is much lighter on the CPU than direct binding
+                    if (isFinite(videoState.currentTime)) {
+                        video.currentTime = videoState.currentTime;
                     }
                 }
-            );
+            });
         });
 
-        // --- 5. FALLBACK IF VIDEO FAILS ---
-        // If video takes too long, hide loader anyway
+        // --- MOBILE WAKE UP CALL ---
+        // iOS puts videos to sleep to save battery. We wake it up on first touch.
+        const wakeUp = () => {
+            if(video.paused) {
+                video.play().then(() => video.pause());
+            }
+        };
+        window.addEventListener("touchstart", wakeUp, {once:true});
+        window.addEventListener("click", wakeUp, {once:true});
+
+        // Fallback: If video fails to load metadata quickly, show site anyway
         setTimeout(() => {
-            loader.style.opacity = "0";
-            setTimeout(() => loader.style.display = "none", 500);
-        }, 4000);
+            if(loader.style.opacity !== "0") {
+                loader.style.opacity = "0";
+                loader.style.pointerEvents = "none";
+            }
+        }, 3000);
 
     </script>
 </body>
