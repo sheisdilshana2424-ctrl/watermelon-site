@@ -1,0 +1,56 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #FF007F; /* CHANGE THIS HEX CODE to match your video background! */
+    font-family: sans-serif;
+    color: white;
+    overflow-x: hidden;
+}
+
+.scroll-height {
+    height: 400vh; /* Determines length of animation */
+    position: relative;
+}
+
+.sticky-container {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* This makes the video responsive on Mobile AND Laptop */
+video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain; /* Keeps the watermelon whole. Use 'cover' to zoom in. */
+    z-index: 1;
+}
+
+.text-overlay {
+    position: absolute;
+    z-index: 2;
+    text-align: center;
+    pointer-events: none; /* Allows you to scroll through text */
+}
+
+h1 {
+    font-size: 15vw; /* Big responsive text */
+    margin: 0;
+    text-shadow: 0px 10px 20px rgba(0,0,0,0.2);
+}
+
+.content-below {
+    height: 100vh;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10;
+    position: relative;
+}
